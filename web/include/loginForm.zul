@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<zk xmlns="http://www.zkoss.org/2005/zul">
+    
+    <div style="position: absolute; right: 10px; top: 10px; margin:0px 0px 0px 0px;" visible="@load(!fmodel.login)" 
+         form="@id('login_form') 
+                           @load(fmodel.user) 
+                           @save(fmodel.user, before='login') 
+                           @validator('ru.apertum.qsys.quser.UserLoginValidator')">
+        
+        <hbox>
+            <vbox>
+                <label value="Пользователь" width="150px" />
+                <combobox width="200px" tabindex="1" model="@load(fmodel.usersForLogin)" value="@bind(login_form.name)">
+                    <comboitem label="@load(each)"/>
+                </combobox>
+            </vbox>
+            <vbox>
+                <label value="Пароль" width="150px" />
+                <textbox id="pwd" type="password" value="@bind(login_form.password)" width="200px" tabindex="2"/>
+            </vbox>
+        </hbox>
+        <div style="margin:3px 0px 0px 0px;">
+            <button width="120px" label="Войти" onClick="@command('login')"  tabindex="3"/>
+            <label class="error" value="@bind(login_msgs['name'])" />
+        </div>
+    </div>
+    
+    <div style="position: absolute; right: 10px; top: 10px; margin:0px 0px 0px 0px;" visible="@load(fmodel.login)">
+        <hbox>
+            <div>
+                <label value="@load('Пользователь '.concat(fmodel.user.name).concat(' '))"/>
+                <separator  bar="true"/>
+                <label value="Кабинет 2" />
+                <separator  bar="true"/>
+                <button width="120px" label="Выйти" onClick="@command('login')">
+                </button>
+            </div>
+            <image id="" src="/resources/img/ok32_2.png"/>
+        </hbox>
+    </div>
+
+</zk>

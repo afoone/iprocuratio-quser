@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<zk xmlns="http://www.zkoss.org/2005/zul">
+    
+    <window id="postponeDialog" 
+            title="Переводим клиента в список отложенных" 
+            border="normal"
+            width="440px" 
+            onClose="self.visible = false; event.stopPropagation();"
+            position="center,center" closable="true"
+            
+            action="show: slideDown;hide: slideUp">
+        <caption label="QSystem" image="/resources/img/logo32.png" />
+        <div style="margin:10px 10px 10px 10px;">
+            <vlayout>
+                <label value="Выберите результат работы с клиентом" />
+                <combobox id="resultBox" model="@load(fmodel.resultList)" autodrop="true" onAfterRender="self.setSelectedIndex(0)" readonly="true" hflex="1">
+                    
+                    <template name="model">
+                        <comboitem label="@load(each)"/>
+                    </template>
+                </combobox>
+                <div style="margin:10px 10px 10px 10px;"></div>
+                <hbox hflex="1">
+                    <label value="Срок пребывания в списк отложенных"/>
+                    <combobox id="timeBox" readonly="true" autodrop="true" hflex="1">
+                        <attribute name="onCreate">
+                            self.setSelectedIndex(0);
+                        </attribute>
+                        <comboitem label="Бессрочно"/>
+                        <comboitem label="5 минут"/>
+                        <comboitem label="10 минут"/>
+                        <comboitem label="15 минут"/>
+                        <comboitem label="20 минут"/>
+                        <comboitem label="25 минут"/>
+                        <comboitem label="30 минут"/>
+                    </combobox>
+                </hbox>
+                <div style="float:right; margin:10px 0px 0px 0px;">
+                    <hbox>
+                        <button id="postponeBtnOk" hflex="1" width="100px" label="Применить" onClick="@command('OKPostponeCustomerDialog')"/>
+                        <button id="postponeBtnClose" hflex="1" width="100px" label="Отмена" onClick="@command('closePostponeCustomerDialog')"/>
+                    </hbox>
+                </div>
+            </vlayout>
+        </div>
+    </window>
+
+</zk>

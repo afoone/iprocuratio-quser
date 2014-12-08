@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<zk xmlns="http://www.zkoss.org/2005/zul">
+    
+    <borderlayout>
+        
+                
+        <center border="none" hflex="true">
+            <panel title="Отложенные посетители" border="normal" height="100%">
+                <panelchildren>
+                    <listbox  id="postpone_list" model="@load(fmodel.postponList)" selectedItem="@bind(fmodel.pickedPostponed)" width="" height="" onSelect="">
+                        <listhead>
+                            <listheader label="Номер" width="50px" sort="auto"/>
+                            <listheader label="Период(мин.)" width="100px" sort="auto"/>
+                            <listheader label="Статус" sort="auto"/>
+                        </listhead>
+                        <template name="model" var="pCust">
+                            <listitem  context="postponeListPopup">
+                                <listcell label="@load(pCust.getFullNumber()  )" />
+                                <listcell label="@load((pCust.postponPeriod > 0 ) ? pCust.postponPeriod : 'Бессрочно'  )" />
+                                <listcell label="@load(pCust.postponedStatus  )" />
+                            </listitem>
+                        </template>
+                    </listbox>
+                    
+                    <menupopup id="postponeListPopup">
+                        <menuitem label="Сменить статус" onClick="@command('clickListPostponedChangeStatus')" />
+                        <menuseparator />
+                        <menuitem label="Вызвать" onClick="@command('clickListPostponedInvite')" />
+                    </menupopup>
+                </panelchildren>
+            </panel>
+        </center>
+                
+                
+        <east size="550px" border="none" minsize="350"  hflex="true" splittable="true" >
+            <panel title="Вызванный посетитель" border="normal" height="100%" vflex="true">
+                <panelchildren>
+                    <vbox >
+                        <label id="cust_nom" value="@load( (fmodel.customer == null) ? '' : (fmodel.customer.prefix).concat(fmodel.customer.number) )" style="font-size: 46px; color: Red; font-style: oblique;"/>
+                        <label id="cust_prior" value="@load( (fmodel.customer == null) ? '' : ('Приоритет ').concat(fmodel.customer.getPriority().get()))" style="font-size: 24px; color: red; font-style: normal;"/>
+                        <label id="cust_serv_name" value="@load( (fmodel.customer == null) ? '' : ('Услуга ').concat(fmodel.customer.getService().getName()))" style="font-size: 24px; color: Blue; font-style: normal;"/>
+                        <label id="cust_input_data" value="@load( (fmodel.customer == null) ? '' : (fmodel.customer.getService().getInput_caption()).concat(fmodel.customer.getInput_data()))" style="font-size: 24px; color: Blue; font-style: normal;"/>
+                        <label id="cust_comments" value="@load( (fmodel.customer == null) ? '' : ('Комментприи ').concat(fmodel.customer.getTempComments()))" style="font-size: 10px; color: Black; font-style: normal;"/>
+                    </vbox>
+                </panelchildren>
+            </panel>	
+        </east>
+        
+        
+        <south hflex="true" splittable="true"  minsize="150" size="160">
+            <panel title="Оказываемые услуги" border="normal" height="200px">
+                <panelchildren>
+                    <listbox id="service_list" model="@load(fmodel.user.plan)" selectedItem="@bind(fmodel.pickedService)" width="" height="" onSelect="" vflex="true">
+                        <listhead>
+                            <listheader label="Ожидают" sort="auto" width="70px"/>
+                            <listheader label="Приоритет" sort="auto" width="120px"/>
+                            <listheader label="Наименование услуги" sort="auto"/>
+                        </listhead>
+                        <template name="model" var="planService">
+                            <listitem   context="servicesListPopup">
+                                <listcell label="@load(fmodel.user.getLineSize(planService.getService().getId())  )" />
+                                <listcell label="@load(  ''.concat(planService.getFlexible_coef() ? '* ' : '').concat(fmodel.user.getPriority(planService.getService().getId()))  )" />
+                                <listcell label="@load( ''.concat(planService.service.getPrefix()).concat(' ').concat(planService.service.getName()) )" />
+                            </listitem>
+                        </template>
+                    </listbox>
+                    <menupopup id="servicesListPopup">
+                        <menuitem label="Изменить приоритет" onClick="@command('clickListServices')" />
+                    </menupopup>
+                </panelchildren>
+                <!-- Это окно для выора приоритета -->
+                
+            </panel>
+                    
+        </south>
+    </borderlayout>
+    <include id="incChangePriorityDialog" src="/include/dialog/changePriorityDialog.zul"/>
+    <include id="incPostponeCustomerDialog" src="/include/dialog/postponeDialog.zul"/>
+    <include id="incRedirectCustomerDialog" src="/include/dialog/redirectDialog.zul"/>
+    <include id="incChangePostponedStatusDialog" src="/include/dialog/changePostponedStatusDialog.zul"/>
+</zk>
