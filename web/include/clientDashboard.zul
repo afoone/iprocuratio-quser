@@ -24,9 +24,9 @@
                     </listbox>
                     
                     <menupopup id="postponeListPopup">
-                        <menuitem label="Сменить статус" onClick="@command('clickListPostponedChangeStatus')" />
+                        <menuitem label="Сменить статус" onClick="@command('clickListPostponedChangeStatus')" visible="@load(fmodel.login)"/>
                         <menuseparator />
-                        <menuitem label="Вызвать" onClick="@command('clickListPostponedInvite')" />
+                        <menuitem label="Вызвать" onClick="@command('clickListPostponedInvite')" visible="@load(fmodel.login)"/>
                     </menupopup>
                 </panelchildren>
             </panel>
@@ -36,22 +36,26 @@
         <east size="550px" border="none" minsize="350"  hflex="true" splittable="true" >
             <panel title="Вызванный посетитель" border="normal" height="100%" vflex="true">
                 <panelchildren>
-                    <vbox >
-                        <label id="cust_nom" value="@load( (fmodel.customer == null) ? '' : (fmodel.customer.prefix).concat(fmodel.customer.number) )" style="font-size: 46px; color: Red; font-style: oblique;"/>
-                        <label id="cust_prior" value="@load( (fmodel.customer == null) ? '' : ('Приоритет ').concat(fmodel.customer.getPriority().get()))" style="font-size: 24px; color: red; font-style: normal;"/>
-                        <label id="cust_serv_name" value="@load( (fmodel.customer == null) ? '' : ('Услуга ').concat(fmodel.customer.getService().getName()))" style="font-size: 24px; color: Blue; font-style: normal;"/>
-                        <label id="cust_input_data" value="@load( (fmodel.customer == null) ? '' : (fmodel.customer.getService().getInput_caption()).concat(fmodel.customer.getInput_data()))" style="font-size: 24px; color: Blue; font-style: normal;"/>
-                        <label id="cust_comments" value="@load( (fmodel.customer == null) ? '' : ('Комментприи ').concat(fmodel.customer.getTempComments()))" style="font-size: 10px; color: Black; font-style: normal;"/>
+                    <vbox style="padding: 10px 10px;">
+                        <label id="nom_cap" value="Номер вызванного:" style="text-decoration:underline;"/>
+                        <label id="cust_nom" value="@load( (fmodel.customer == null) ? '' : (fmodel.customer.prefix).concat(fmodel.customer.number) )" style="padding: 0px 50px 50px 100px; font-size: 46px; color: Red; font-style: oblique;"/>
+                        <label id="cust_prior" value="@load( (fmodel.customer == null) ? '' : ('Приоритет ').concat(fmodel.getPriorityCaption( fmodel.customer.getPriority().get() ) ))" style="padding: 50px 0px 0px 100px; font-size: 24px; color: red; font-style: normal;"/>
+                        <label id="serv_cap" value="Услуга:" style="text-decoration:underline;"/>
+                        <label id="cust_serv_name" value="@load( (fmodel.customer == null) ? '' : ('').concat(fmodel.customer.getService().getName()))" style="padding: 50px 0px 0px 40px; font-size: 24px; color: Black; font-style: normal;"/>
+                        <label id="inp_cap" value="@load(fmodel.customer.getService().getInput_caption())" style="text-decoration:underline;"/>
+                        <label id="cust_input_data" value="@load( (fmodel.customer == null) ? '' : fmodel.customer.getInput_data())" style="padding: 50px 0px 0px 40px; font-size: 24px; color: Blue; font-style: normal;"/>
+                        <label id="comments_cap" value="Комментарии:" style="text-decoration:underline;"/>
+                        <label id="cust_comments" value="@load( (fmodel.customer == null) ? '' : ('').concat(fmodel.customer.getTempComments()))" style="font-size: 14px; color: Black; font-style: normal;"/>
                     </vbox>
                 </panelchildren>
             </panel>	
         </east>
         
         
-        <south hflex="true" splittable="true"  minsize="150" size="160">
-            <panel title="Оказываемые услуги" border="normal" height="200px">
+        <south hflex="true" splittable="true"  minsize="150" size="270px">
+            <panel title="Оказываемые услуги" border="normal" height="100%">
                 <panelchildren>
-                    <listbox id="service_list" model="@load(fmodel.user.plan)" selectedItem="@bind(fmodel.pickedService)" width="" height="" onSelect="" vflex="true">
+                    <listbox id="service_list" model="@load(fmodel.user.plan)" selectedItem="@bind(fmodel.pickedService)" width="100%" height="100%" onSelect="" vflex="true">
                         <listhead>
                             <listheader label="Ожидают" sort="auto" width="70px"/>
                             <listheader label="Приоритет" sort="auto" width="120px"/>
@@ -66,8 +70,9 @@
                         </template>
                     </listbox>
                     <menupopup id="servicesListPopup">
-                        <menuitem label="Изменить приоритет" onClick="@command('clickListServices')" />
+                        <menuitem label="Изменить приоритет" onClick="@command('clickListServices')" visible="@load(fmodel.login)"/>
                     </menupopup>
+                    <timer id="timer_service_list" delay="10000" repeats="true" running="true" onTimer="@command('refreshListServices')"/>
                 </panelchildren>
                 <!-- Это окно для выора приоритета -->
                 

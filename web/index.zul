@@ -3,7 +3,6 @@
 <zk xmlns="http://www.zkoss.org/2005/zul" >
     <?taglib uri="http://www.zkoss.org/dsp/web/core" prefix="c"?>
     <style>
-        
         .act-button:active { 
         background:	-webkit-linear-gradient(top, #FFFFFF 0%, #FFDDDD 100%); /* Chrome10+,Safari5.1+ */
         background:	linear-gradient(to bottom, #FFFFFF 0%, #FFDDDD 100%); /* W3C */
@@ -15,21 +14,17 @@
         -webkit-border-radius: 2em;
 	-moz-border-radius: 2em;
 	border-radius: 2em;
-        ;
         }
-
-       
         .act-button:disabled { 
         background:	-webkit-linear-gradient(top, #FFFFFF 0%, #BBBBCC 100%); /* Chrome10+,Safari5.1+ */
         background:	linear-gradient(to bottom, #FFFFFF 0%, #BBBBCC 100%); /* W3C */
-        ;
         }
-
         .act-button:hover {
         border-color: #FFFF00;
         }
         
     </style>
+    <timer id="timer_ses" delay="50000" repeats="true" running="true" onTimer=""/>
  
     <borderlayout  sclass="complex-layout" validationMessages="@id('login_msgs')" apply="org.zkoss.bind.BindComposer"  viewModel="@id('fmodel') @init('ru.apertum.qsys.quser.Form')">
         

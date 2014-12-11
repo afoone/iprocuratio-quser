@@ -1,5 +1,6 @@
 package ru.apertum.qsys.quser;
 
+import java.util.Date;
 import java.util.Map;
 import org.zkoss.bind.Property;
 import org.zkoss.bind.ValidationContext;
@@ -15,6 +16,7 @@ public class UserLoginValidator extends AbstractValidator {
         Map<String, Property> beanProps = ctx.getProperties(ctx.getProperty().getBase());
         validateName(ctx, (String) beanProps.get("name").getValue());
         validatePassword(ctx, (String) beanProps.get("name").getValue(), (String) beanProps.get("password").getValue());
+        validateMultipleLogin(ctx, (String) beanProps.get("name").getValue(), (String) beanProps.get("password").getValue());
     }
 
     private void validateName(ValidationContext ctx, String name) {
@@ -35,4 +37,10 @@ public class UserLoginValidator extends AbstractValidator {
         this.addInvalidMessage(ctx, "name", "Нет доступа!");
     }
 
+    private void validateMultipleLogin(ValidationContext ctx, String name, String pass) {
+        final Long l = UsersInside.getInstance().getUsersInside().get(name + pass);
+        if (l != null && new Date().getTime() - l < 60000) {
+            this.addInvalidMessage(ctx, "name", "Этот пользователь уже работает!");
+        }
+    }
 }

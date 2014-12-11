@@ -31,9 +31,9 @@
             <div>
                 <label value="@load('Пользователь '.concat(fmodel.user.name).concat(' '))"/>
                 <separator  bar="true"/>
-                <label value="Кабинет 2" />
+                <label value="@load('Кабинет '.concat(fmodel.user.user.point).concat(' '))" />
                 <separator  bar="true"/>
-                <button width="120px" label="Выйти" onClick="@command('login')">
+                <button width="120px" label="Выйти" onClick="@command('logout')">
                 </button>
             </div>
             <image id="" src="/resources/img/ok32_2.png"/>

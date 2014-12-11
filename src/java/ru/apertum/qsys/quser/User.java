@@ -9,7 +9,7 @@ import ru.apertum.qsystem.server.model.QUser;
 import ru.apertum.qsystem.server.model.QUserList;
 
 public class User {
-
+    
     private String name = "";
     private String password = "";
     private QUser user;

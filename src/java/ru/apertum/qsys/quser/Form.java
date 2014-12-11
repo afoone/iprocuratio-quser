@@ -5,19 +5,22 @@
  */
 package ru.apertum.qsys.quser;
 
+import java.util.Date;
 import java.util.LinkedList;
 import org.zkoss.bind.BindUtils;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
 import org.zkoss.bind.annotation.ContextType;
+import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Session;
-import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zk.ui.Sessions;
 import org.zkoss.zk.ui.select.Selectors;
 import org.zkoss.zk.ui.select.annotation.Wire;
+import org.zkoss.zk.ui.util.Clients;
+import org.zkoss.zul.Button;
 import org.zkoss.zul.Checkbox;
 import org.zkoss.zul.Combobox;
 import org.zkoss.zul.Listbox;
@@ -25,6 +28,7 @@ import org.zkoss.zul.Messagebox;
 import org.zkoss.zul.Textbox;
 import org.zkoss.zul.Window;
 import static ru.apertum.qsystem.client.forms.FClient.*;
+import ru.apertum.qsystem.common.QLog;
 import ru.apertum.qsystem.common.Uses;
 import ru.apertum.qsystem.common.cmd.CmdParams;
 import ru.apertum.qsystem.common.cmd.RpcInviteCustomer;
@@ -43,6 +47,37 @@ import ru.apertum.qsystem.server.model.results.QResultList;
  * @author Evgeniy Egorov
  */
 public class Form {
+
+    @Init
+    public void init() {
+        final Session sess = Sessions.getCurrent();
+        final User userL = (User) sess.getAttribute("userForQUser");
+        if (userL != null) {
+            user = userL;
+            if (user.getUser().getCustomer() != null) {
+                customer = user.getUser().getCustomer();
+                switch (user.getUser().getCustomer().getState()) {
+                    case STATE_DEAD:
+                        setKeyRegim(KEYS_INVITED);
+                        break;
+                    case STATE_INVITED:
+                        setKeyRegim(KEYS_INVITED);
+                        break;
+                    case STATE_INVITED_SECONDARY:
+                        setKeyRegim(KEYS_INVITED);
+                        break;
+                    case STATE_WORK:
+                        setKeyRegim(KEYS_STARTED);
+                        break;
+                    case STATE_WORK_SECONDARY:
+                        setKeyRegim(KEYS_STARTED);
+                        break;
+                    default:
+                        setKeyRegim(KEYS_MAY_INVITE);
+                }
+            }
+        }
+    }
 
     /**
      * Это нужно чтоб делать include во view и потом связывать @Wire("#incClientDashboard #incChangePriorityDialog #changePriorityDlg")
@@ -71,43 +106,69 @@ public class Form {
     }
 
     @Command
-    @NotifyChange(value = {"btnsDisabled", "login", "user", "postponList"})
+    @NotifyChange(value = {"btnsDisabled", "login", "user", "postponList", "customer"})
     public void login() {
-        System.out.println("---------->>>>>>>> " + user.getName() + "  " + user.getPassword());
-        if (login) {
-            login = false;
-            user.setName("");
-            user.setPassword("");
-            setKeyRegim(KEYS_OFF);
-        } else {
-            login = true;
+        QLog.l().logQUser().debug("Login " + user.getName());
 
-            // TODO for testing
-            // need disabled
-            user.getPlan().forEach((QPlanService p) -> {
-                final CmdParams params = new CmdParams();
-                params.serviceId = p.getService().getId();
-                Executer.getInstance().getTasks().get(Uses.TASK_STAND_IN).process(params, "", new byte[4]);
-            });
+        final Session sess = Sessions.getCurrent();
+        sess.setAttribute("userForQUser", user);
+        customer = user.getUser().getCustomer();
+
+        // TODO for testing
+        // need disabled
+        user.getPlan().forEach((QPlanService p) -> {
+            final CmdParams params = new CmdParams();
+            params.serviceId = p.getService().getId();
+            params.priority = 1;
+            Executer.getInstance().getTasks().get(Uses.TASK_STAND_IN).process(params, "", new byte[4]);
+        });
+        if (customer != null) {
+            switch (customer.getState()) {
+                case STATE_DEAD:
+                    setKeyRegim(KEYS_INVITED);
+                    break;
+                case STATE_INVITED:
+                    setKeyRegim(KEYS_INVITED);
+                    break;
+                case STATE_INVITED_SECONDARY:
+                    setKeyRegim(KEYS_INVITED);
+                    break;
+                case STATE_WORK:
+                    setKeyRegim(KEYS_STARTED);
+                    break;
+                case STATE_WORK_SECONDARY:
+                    setKeyRegim(KEYS_STARTED);
+                    break;
+                default:
+                    setKeyRegim(KEYS_MAY_INVITE);
+            }
+        } else {
             setKeyRegim(KEYS_MAY_INVITE);
         }
-        user.getUser().getPlanServiceList().getServices().stream().forEach((ser) -> {
-            System.out.println("*** plan " + ser);
-        });
+
+    }
+
+    @Command
+    @NotifyChange(value = {"btnsDisabled", "login", "user", "customer"})
+    public void logout() {
+        QLog.l().logQUser().debug("Logout " + user.getName());
+        final Session sess = Sessions.getCurrent();
+        sess.removeAttribute("userForQUser");
+        UsersInside.getInstance().getUsersInside().remove(user.getName() + user.getPassword());
+        user.setName("");
+        user.setPassword("");
+        customer = null;
+        setKeyRegim(KEYS_OFF);
     }
 
     public LinkedList<QUser> getUsersForLogin() {
         return QUserList.getInstance().getItems();
     }
 
-    private boolean login = false;
-
     public boolean isLogin() {
-        return login;
-    }
-
-    public void setLogin(boolean login) {
-        this.login = login;
+        final Session sess = Sessions.getCurrent();
+        final User userL = (User) sess.getAttribute("userForQUser");
+        return userL != null;
     }
 
     //*********************************************************************************************************
@@ -129,12 +190,11 @@ public class Form {
         btnsDisabled[1] = !(isLogin() && '1' == regim.charAt(1));
         btnsDisabled[2] = !(isLogin() && '1' == regim.charAt(2));
         btnsDisabled[3] = !(isLogin() && '1' == regim.charAt(3));
-        btnsDisabled[4] = false;//!(isLogin() && '1' == regim.charAt(4));
+        btnsDisabled[4] = /*todo false;/*/ !(isLogin() && '1' == regim.charAt(4));
         btnsDisabled[5] = !(isLogin() && '1' == regim.charAt(5));
-
     }
 
-    private boolean[] btnsDisabled = new boolean[]{true, true, true, true, false, true};
+    private boolean[] btnsDisabled = new boolean[]{true, true, true, true, true, true};
 
     public boolean[] getBtnsDisabled() {
         return btnsDisabled;
@@ -153,25 +213,54 @@ public class Form {
         this.customer = customer;
     }
 
+    public String getPriorityCaption(int priority) {
+        final String res;
+        switch (priority) {
+            case 0: {
+                res = "второстепенный";
+                break;
+            }
+            case 1: {
+                res = "стандартный";
+                break;
+            }
+            case 2: {
+                res = "повышенный";
+                break;
+            }
+            case 3: {
+                res = "V.I.P.";
+                break;
+            }
+            default: {
+                res = "странный";
+            }
+        }
+        return res;
+    }
+
+    @Wire("#btn_invite")
+    private Button btn_invite;
+
+    @Wire("#incClientDashboard #service_list")
+    private Listbox service_list;
+
     @Command
     @NotifyChange(value = {"btnsDisabled", "customer"})
     public void invite() {
+        QLog.l().logQUser().debug("Invite by " + user.getName());
         final CmdParams params = new CmdParams();
         params.userId = user.getUser().getId();
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + user.getUser().getId());
+        System.out.println(" INVIT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + user.getUser().getId());
         final RpcInviteCustomer result = (RpcInviteCustomer) Executer.getInstance().getTasks().get(Uses.TASK_INVITE_NEXT_CUSTOMER).process(params, "", new byte[4]);
         if (result.getResult() != null) {
-            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + result.getId());
             customer = result.getResult();
-            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + result.getResult().getFullNumber());
-
             if (customer != null && customer.getPostponPeriod() > 0) {
                 Messagebox.show("Посетитель был отложен на"
                         + " " + customer.getPostponPeriod() + " "
                         + "минут. И вызван со статусом "
                         + " \"" + customer.getPostponedStatus() + "\".", "Вызов отложенного", Messagebox.OK, Messagebox.INFORMATION);
             }
-
             setKeyRegim(KEYS_INVITED);
         } else {
             Messagebox.show("Посетителей в очереди нет.", "Вызов следующего", Messagebox.OK, Messagebox.INFORMATION);
@@ -182,10 +271,11 @@ public class Form {
     @Command
     @NotifyChange(value = {"btnsDisabled", "customer"})
     public void kill() {
+        QLog.l().logQUser().debug("Kill by " + user.getName() + " customer " + customer.getFullNumber());
         final CmdParams params = new CmdParams();
         params.userId = user.getUser().getId();
         Executer.getInstance().getTasks().get(Uses.TASK_KILL_NEXT_CUSTOMER).process(params, "", new byte[4]);
-        customer = new QCustomer();
+        customer = null;
         setKeyRegim(KEYS_MAY_INVITE);
         service_list.setModel(service_list.getModel());
     }
@@ -193,6 +283,7 @@ public class Form {
     @Command
     @NotifyChange(value = {"btnsDisabled"})
     public void begin() {
+        QLog.l().logQUser().debug("Begin by " + user.getName() + " customer " + customer.getFullNumber());
         final CmdParams params = new CmdParams();
         params.userId = user.getUser().getId();
         Executer.getInstance().getTasks().get(Uses.TASK_START_CUSTOMER).process(params, "", new byte[4]);
@@ -204,6 +295,7 @@ public class Form {
     @Command
     @NotifyChange(value = {"btnsDisabled", "customer"})
     public void postpone() {
+        QLog.l().logQUser().debug("Postpone by " + user.getName() + " customer " + customer.getFullNumber());
         postponeCustomerDialog.setVisible(true);
         postponeCustomerDialog.doModal();
 
@@ -211,12 +303,10 @@ public class Form {
         service_list.setModel(service_list.getModel());
     }
 
-    @Wire("#incClientDashboard #service_list")
-    private Listbox service_list;
-
     @Command
     @NotifyChange(value = {"btnsDisabled", "customer", "service_list"})
     public void redirect() {
+        QLog.l().logQUser().debug("Redirect by " + user.getName() + " customer " + customer.getFullNumber());
         redirectCustomerDialog.setVisible(true);
         redirectCustomerDialog.doModal();
 
@@ -227,6 +317,7 @@ public class Form {
     @Command
     @NotifyChange(value = {"btnsDisabled", "customer"})
     public void finish() {
+        QLog.l().logQUser().debug("Finish by " + user.getName() + " customer " + customer.getFullNumber());
         final CmdParams params = new CmdParams();
         params.userId = user.getUser().getId();
         params.resultId = -1L;
@@ -234,6 +325,7 @@ public class Form {
         Executer.getInstance().getTasks().get(Uses.TASK_FINISH_CUSTOMER).process(params, "", new byte[4]);
         customer = null;
 
+        System.out.println(" FINISH >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + user.getUser().getId());
         setKeyRegim(KEYS_MAY_INVITE);
         service_list.setModel(service_list.getModel());
     }
@@ -280,6 +372,28 @@ public class Form {
     @NotifyChange(value = {"user"})
     public void closeChangePriorityDialog() {
         changeServicePriorityDialog.setVisible(false);
+    }
+    private String oldSt = "";
+
+    @Command
+    @NotifyChange(value = {"postponList"})
+    public void refreshListServices() {
+
+        if (isLogin()) {
+            UsersInside.getInstance().getUsersInside().put(user.getName() + user.getPassword(), new Date().getTime());
+            final StringBuilder st = new StringBuilder();
+            user.getPlan().forEach((QPlanService p) -> {
+                st.append(user.getLineSize(p.getService().getId()));
+            });
+
+            if (!oldSt.equals(st.toString())) {
+                if ("".equals(oldSt.replaceAll("0+", "")) && customer == null) {
+                    Clients.showNotification("Вызовите посетителя!", Clients.NOTIFICATION_TYPE_WARNING, btn_invite, "start_center", 0, true);
+                }
+                service_list.setModel(service_list.getModel());
+                oldSt = st.toString();
+            }
+        }
     }
 
     //********************************************************************************************************************************************
@@ -354,26 +468,26 @@ public class Form {
 
     @Command
     public void clickListPostponedInvite() {
+        if (user.getPlan().isEmpty()) {
+            return;
+        }
         Messagebox.show("Хотите вызвать отложенного посетителя?", "Вызов посетителя", new Messagebox.Button[]{
-            Messagebox.Button.YES, Messagebox.Button.NO}, Messagebox.QUESTION, new EventListener<Messagebox.ClickEvent>() {
+            Messagebox.Button.YES, Messagebox.Button.NO}, Messagebox.QUESTION, (Messagebox.ClickEvent t) -> {
+            QLog.l().logQUser().debug("Invite postponed by " + user.getName() + " customer " + pickedPostponed.getFullNumber());
+            if (t.getButton() != null && t.getButton().compareTo(Messagebox.Button.YES) == 0) {
+                final CmdParams params = new CmdParams();
+                // @param userId id юзера который вызывает
+                // @param id это ID кастомера которого вызываем из пула отложенных, оно есть т.к. с качстомером давно работаем
+                params.customerId = pickedPostponed.getId();
+                params.userId = user.getUser().getId();
+                Executer.getInstance().getTasks().get(Uses.TASK_INVITE_POSTPONED).process(params, "", new byte[4]);
+                customer = user.getUser().getCustomer();
 
-            @Override
-            public void onEvent(Messagebox.ClickEvent t) throws Exception {
-                if (t.getButton() != null && t.getButton().compareTo(Messagebox.Button.YES) == 0) {
-                    final CmdParams params = new CmdParams();
-                    // @param userId id юзера который вызывает
-                    // @param id это ID кастомера которого вызываем из пула отложенных, оно есть т.к. с качстомером давно работаем
-                    params.customerId = pickedPostponed.getId();
-                    params.userId = user.getUser().getId();
-                    Executer.getInstance().getTasks().get(Uses.TASK_INVITE_POSTPONED).process(params, "", new byte[4]);
-                    customer = user.getUser().getCustomer();
+                setKeyRegim(KEYS_INVITED);
+                BindUtils.postNotifyChange(null, null, Form.this, "postponList");
+                BindUtils.postNotifyChange(null, null, Form.this, "customer");
+                BindUtils.postNotifyChange(null, null, Form.this, "btnsDisabled");
 
-                    setKeyRegim(KEYS_INVITED);
-                    BindUtils.postNotifyChange(null, null, Form.this, "postponList");
-                    BindUtils.postNotifyChange(null, null, Form.this, "customer");
-                    BindUtils.postNotifyChange(null, null, Form.this, "btnsDisabled");
-
-                }
             }
         });
     }
