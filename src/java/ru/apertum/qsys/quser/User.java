@@ -2,14 +2,18 @@ package ru.apertum.qsys.quser;
 
 import java.util.LinkedList;
 import java.util.List;
-import ru.apertum.qsystem.common.Uses;
+import org.zkoss.util.resource.Labels;
 import ru.apertum.qsystem.server.model.QPlanService;
 import ru.apertum.qsystem.server.model.QServiceTree;
 import ru.apertum.qsystem.server.model.QUser;
 import ru.apertum.qsystem.server.model.QUserList;
 
 public class User {
-    
+
+    public String l(String resName) {
+        return Labels.getLabel(resName);
+    }
+
     private String name = "";
     private String password = "";
     private QUser user;
@@ -62,7 +66,26 @@ public class User {
     public String getPriority(long serviceId) {
         for (QPlanService qPlanService : plan) {
             if (qPlanService.getService().getId().equals(serviceId)) {
-                return Uses.get_COEFF_WORD().get(qPlanService.getCoefficient());
+                final String res;
+                switch (qPlanService.getCoefficient()) {
+                    case 0: {
+                        res = l("secondary");
+                        break;
+                    }
+                    case 1: {
+                        res = l("standard");
+                        break;
+                    }
+                    case 2: {
+                        res = l("V.I.P.");
+                        break;
+                    }
+
+                    default: {
+                        res = l("stange");
+                    }
+                }
+                return res;
             }
         }
         return "--";

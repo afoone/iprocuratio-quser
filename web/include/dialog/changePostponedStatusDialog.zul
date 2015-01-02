@@ -3,7 +3,7 @@
 <zk xmlns="http://www.zkoss.org/2005/zul">
     
     <window id="changePostponedStatusDialog" 
-            title="Определение статуса для отложенного" 
+            title="${c:l('select_status_postponed')}" 
             border="normal"
             width="500px" 
             position="center,center" closable="false"
@@ -12,7 +12,7 @@
         <caption label="QSystem" image="/resources/img/logo32.png" />
         <div style="margin:10px 10px 10px 10px;">
             <vlayout>
-                <label value="Выберите статус" />
+                <label value="${c:l('choose_status')}" />
                 <combobox id="pndResultBox" model="@load(fmodel.resultList)" autodrop="true" readonly="true" hflex="1">
                     
                     <template name="model">
@@ -23,7 +23,7 @@
                 
                 <div style="float:right; margin:10px 0px 0px 0px;">
                     <hbox>
-                        <button id="applyBtn" hflex="1" label="Применить" onClick="@command('closeChangePostponedStatusDialog')"/>
+                        <button id="applyBtn" hflex="1" label="${c:l('apply')}" onClick="@command('closeChangePostponedStatusDialog')"/>
                     </hbox>
                 </div>
             </vlayout>

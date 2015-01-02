@@ -6,7 +6,7 @@
         visible="true" 
         
         id="changePriorityDlg" 
-        title="Определение нового приоритета" 
+        title="${c:l('choose_priority')}" 
         border="normal"
         width="350px" 
             
@@ -19,7 +19,7 @@
         <caption label="QSystem" image="/resources/img/logo32.png" />
         <div style="margin:10px 10px 10px 10px;">
             <vlayout>
-                <label value="Выберите приоритет" />
+                <label value="${c:l('select_priority')}" />
                 <combobox model="@load(fmodel.prior_St)" selectedIndex="@bind(fmodel.pickedService.coefficient)"  readonly="true" hflex="1" tabindex="1" >
                     <template name="model">
                         <comboitem label="@load(each)"/>

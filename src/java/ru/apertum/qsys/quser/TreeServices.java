@@ -17,7 +17,6 @@ public class TreeServices extends AbstractTreeModel<QService> {
 
     public TreeServices() {
         super(QServiceTree.getInstance().getRoot());
-        System.out.println(" ---------------------------------------------- " + getChildCount(   getRoot() ) );
     }
     
    

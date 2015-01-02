@@ -10,18 +10,18 @@
         
         <hbox>
             <vbox>
-                <label value="Пользователь" width="150px" />
+                <label value="${c:l('user')}" width="150px" />
                 <combobox width="200px" tabindex="1" model="@load(fmodel.usersForLogin)" value="@bind(login_form.name)">
                     <comboitem label="@load(each)"/>
                 </combobox>
             </vbox>
             <vbox>
-                <label value="Пароль" width="150px" />
+                <label value="${c:l('password')}" width="150px" />
                 <textbox id="pwd" type="password" value="@bind(login_form.password)" width="200px" tabindex="2"/>
             </vbox>
         </hbox>
         <div style="margin:3px 0px 0px 0px;">
-            <button width="120px" label="Войти" onClick="@command('login')"  tabindex="3"/>
+            <button width="120px" label="${c:l('enter')}" onClick="@command('login')"  tabindex="3"/>
             <label class="error" value="@bind(login_msgs['name'])" />
         </div>
     </div>
@@ -29,11 +29,11 @@
     <div style="position: absolute; right: 10px; top: 10px; margin:0px 0px 0px 0px;" visible="@load(fmodel.login)">
         <hbox>
             <div>
-                <label value="@load('Пользователь '.concat(fmodel.user.name).concat(' '))"/>
+                <label value="${c:l('user')}" style="margin:0px 7px 0px 0px;"/><label value="@load(fmodel.user.name)"/>
                 <separator  bar="true"/>
-                <label value="@load('Кабинет '.concat(fmodel.user.user.point).concat(' '))" />
+                <label value="${c:l('office')}" style="margin:0px 7px 0px 0px;"/><label value="@load(fmodel.user.user.point)" />
                 <separator  bar="true"/>
-                <button width="120px" label="Выйти" onClick="@command('logout')">
+                <button width="120px" label="${c:l('out')}" onClick="@command('logout')">
                 </button>
             </div>
             <image id="" src="/resources/img/ok32_2.png"/>

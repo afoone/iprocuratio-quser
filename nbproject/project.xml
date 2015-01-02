@@ -215,10 +215,6 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library dirs="200">
-                    <file>${file.reference.xalan-2.7.1.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
-                <library dirs="200">
                     <file>${file.reference.AbsoluteLayout.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
