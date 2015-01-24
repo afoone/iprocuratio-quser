@@ -44,6 +44,7 @@ import ru.apertum.qsystem.common.cmd.RpcInviteCustomer;
 import ru.apertum.qsystem.common.cmd.RpcStandInService;
 import ru.apertum.qsystem.common.exceptions.ServerException;
 import ru.apertum.qsystem.common.model.QCustomer;
+import ru.apertum.qsystem.server.QSession;
 import ru.apertum.qsystem.server.QSessions;
 import ru.apertum.qsystem.server.controller.Executer;
 import ru.apertum.qsystem.server.model.QPlanService;
@@ -68,9 +69,10 @@ public class Form {
     public void init() {
         final Session sess = Sessions.getCurrent();
 
-        if (sess.getAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE) == null) {
-            if (langs.contains(Executions.getCurrent().getHeader("accept-language").replace("-", "_"))) {
-                lang = Executions.getCurrent().getHeader("accept-language").replace("-", "_");
+        if (sess.getAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE) == null && Executions.getCurrent().getHeader("accept-language") != null && !Executions.getCurrent().getHeader("accept-language").isEmpty()) {
+            final String ln = Executions.getCurrent().getHeader("accept-language").replace("-", "_").split(",")[0];
+            if (langs.contains(ln)) {
+                lang = ln;
             } else {
                 lang = "en_GB";
             }
@@ -78,7 +80,9 @@ public class Form {
                     ? new Locale(lang.substring(0, 2), lang.substring(3)) : new Locale(lang);
             sess.setAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE, prefer_locale);
         } else {
-            lang = ((Locale) sess.getAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE)).getLanguage() + "_" + ((Locale) sess.getAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE)).getCountry();
+            lang = sess.getAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE) == null ? "hz"
+                    : (((Locale) sess.getAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE)).getLanguage() + "_"
+                    + ((Locale) sess.getAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE)).getCountry());
             if (!langs.contains(lang)) {
                 lang = "en_GB";
                 final Locale prefer_locale = lang.length() > 2
@@ -193,7 +197,7 @@ public class Form {
             final CmdParams params = new CmdParams();
             params.serviceId = p.getService().getId();
             params.priority = 1;
-            /*/todo disabled*/ Executer.getInstance().getTasks().get(Uses.TASK_STAND_IN).process(params, "", new byte[4]);
+            //*/todo disabled*/ Executer.getInstance().getTasks().get(Uses.TASK_STAND_IN).process(params, "", new byte[4]);
         });
         if (customer != null) {
             switch (customer.getState()) {
@@ -250,6 +254,12 @@ public class Form {
         final Session sess = Sessions.getCurrent();
         sess.removeAttribute("userForQUser");
         UsersInside.getInstance().getUsersInside().remove(user.getName() + user.getPassword());
+        for (QSession session : QSessions.getInstance().getSessions()) {
+            if (user.getUser().getId().equals(session.getUser().getId())) {
+                QSessions.getInstance().getSessions().remove(session);
+                return;
+            }
+        }
         user.setName("");
         user.setPassword("");
         customer = null;

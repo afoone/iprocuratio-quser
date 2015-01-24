@@ -11,17 +11,17 @@
         <hbox>
             <vbox>
                 <label value="${c:l('user')}" width="150px" />
-                <combobox width="200px" tabindex="1" model="@load(fmodel.usersForLogin)" value="@bind(login_form.name)">
+                <combobox width="200px" tabindex="1" model="@load(fmodel.usersForLogin)" forward="onOK=btnSubmit.onClick" value="@bind(login_form.name)">
                     <comboitem label="@load(each)"/>
                 </combobox>
             </vbox>
             <vbox>
                 <label value="${c:l('password')}" width="150px" />
-                <textbox id="pwd" type="password" value="@bind(login_form.password)" width="200px" tabindex="2"/>
+                <textbox id="pwd" type="password" forward="onOK=btnSubmit.onClick" value="@bind(login_form.password)" width="200px" tabindex="2"/>
             </vbox>
         </hbox>
         <div style="margin:3px 0px 0px 0px;">
-            <button width="120px" label="${c:l('enter')}" onClick="@command('login')"  tabindex="3"/>
+            <button width="120px" id="btnSubmit" label="${c:l('enter')}" onClick="@command('login')"  tabindex="3"/>
             <label class="error" value="@bind(login_msgs['name'])" />
         </div>
     </div>

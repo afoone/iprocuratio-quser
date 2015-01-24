@@ -35,9 +35,9 @@ public class MergTrans {
         resFileName = "E:\\WORK\\apertum-qsystem.quser\\web\\WEB-INF\\i3-label_tr_TR.properties";
         resFileName = "E:\\WORK\\apertum-qsystem.quser\\web\\WEB-INF\\i3-label_hi_IN.properties";
         resFileName = "E:\\WORK\\apertum-qsystem.quser\\web\\WEB-INF\\i3-label_ar_EG.properties";
-        resFileName = "E:\\WORK\\apertum-qsystem.quser\\web\\WEB-INF\\i3-label_he_IL.properties";
+        resFileName = "E:\\WORK\\apertum-qsystem.quser\\web\\WEB-INF\\i3-label_iw_IL.properties";
         resFileName = "E:\\WORK\\apertum-qsystem.quser\\web\\WEB-INF\\i3-label_kk_KZ.properties";
-        resFileName = "E:\\WORK\\apertum-qsystem.quser\\web\\WEB-INF\\i3-label_id_ID.properties";//indonesia
+        resFileName = "E:\\WORK\\apertum-qsystem.quser\\web\\WEB-INF\\i3-label_in_ID.properties";//indonesia
         resFileName = "E:\\WORK\\apertum-qsystem.quser\\web\\WEB-INF\\i3-label_fi_FI.properties";
 
         final LinkedList<String> params = new LinkedList<>();
