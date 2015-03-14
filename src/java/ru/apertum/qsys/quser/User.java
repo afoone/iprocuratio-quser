@@ -63,6 +63,16 @@ public class User {
         return QServiceTree.getInstance().getById(serviceId).getCountCustomers();
     }
 
+    public int getTotalLineSize() {
+        int total = 0;
+        total = plan.stream().map((plan1) -> QServiceTree.getInstance().getById(plan1.getService().getId()).getCountCustomers()).reduce(total, Integer::sum);
+        return total;
+    }
+
+    public String getTotalLineSizeStr() {
+        return l("vaiting") + " " + getTotalLineSize();
+    }
+
     public String getPriority(long serviceId) {
         for (QPlanService qPlanService : plan) {
             if (qPlanService.getService().getId().equals(serviceId)) {
@@ -77,7 +87,7 @@ public class User {
                         break;
                     }
                     case 2: {
-                        res = l("V.I.P.");
+                        res = "V.I.P.";
                         break;
                     }
 

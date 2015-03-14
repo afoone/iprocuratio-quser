@@ -36,10 +36,10 @@
                     <!--label id="" style="position: absolute; right: 450px; top: 10px; margin:0px 0px 0px 0px; float:right;" value="QSystem11"/-->
                     <hbox pack="center" align="center" style="position: absolute; left: 180; top: 10px; margin:0px 0px 0px 0px; float:left;">
                         <label value="${c:l('language')}" class="boxlangs" />
-                        <image  src="@load(('/resources/img/flags/').concat(fmodel.lang).concat('.png'))" />
-                        <combobox id="cmbColor" autodrop="true" readonly="true" width="80px" model="@load(fmodel.langs)" onChange="@command('changeLang')" selectedItem="@bind(fmodel.lang)">
+                        <image  src="@load(('/resources/img/flags/').concat(fmodel.lang.code).concat('.png'))" />
+                        <combobox id="cmbColor" autodrop="true" readonly="true" width="100px" model="@load(fmodel.langs)" onChange="@command('changeLang')" selectedItem="@bind(fmodel.lang)">
                             <template name="model">
-                                <comboitem label="@load(each)" image="@load(('/resources/img/flags/').concat(each).concat('.png'))" />
+                                <comboitem label="@load(each.name)" image="@load(('/resources/img/flags/').concat(each.code).concat('.png'))" />
                             </template>
                         </combobox>
                         

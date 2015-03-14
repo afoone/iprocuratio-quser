@@ -19,17 +19,6 @@ public class TreeServices extends AbstractTreeModel<QService> {
         super(QServiceTree.getInstance().getRoot());
     }
     
-   
-
-    public static TreeServices getInstance() {
-        return TreeServicesHolder.INSTANCE;
-    }
-
-    private static class TreeServicesHolder {
-
-        private static final TreeServices INSTANCE = new TreeServices();
-    }
-
     @Override
     public boolean isLeaf(QService e) {
         return e.isLeaf();

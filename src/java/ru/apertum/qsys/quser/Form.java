@@ -8,7 +8,6 @@ package ru.apertum.qsys.quser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -35,6 +34,7 @@ import org.zkoss.zul.Listbox;
 import org.zkoss.zul.Messagebox;
 import org.zkoss.zul.Textbox;
 import org.zkoss.zul.Window;
+import ru.apertum.qsys.quser.Multilingual.Lng;
 import static ru.apertum.qsystem.client.forms.FClient.*;
 import ru.apertum.qsystem.common.CustomerState;
 import ru.apertum.qsystem.common.QLog;
@@ -68,28 +68,6 @@ public class Form {
     @Init
     public void init() {
         final Session sess = Sessions.getCurrent();
-
-        if (sess.getAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE) == null && Executions.getCurrent().getHeader("accept-language") != null && !Executions.getCurrent().getHeader("accept-language").isEmpty()) {
-            final String ln = Executions.getCurrent().getHeader("accept-language").replace("-", "_").split(",")[0];
-            if (langs.contains(ln)) {
-                lang = ln;
-            } else {
-                lang = "en_GB";
-            }
-            final Locale prefer_locale = lang.length() > 2
-                    ? new Locale(lang.substring(0, 2), lang.substring(3)) : new Locale(lang);
-            sess.setAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE, prefer_locale);
-        } else {
-            lang = sess.getAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE) == null ? "hz"
-                    : (((Locale) sess.getAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE)).getLanguage() + "_"
-                    + ((Locale) sess.getAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE)).getCountry());
-            if (!langs.contains(lang)) {
-                lang = "en_GB";
-                final Locale prefer_locale = lang.length() > 2
-                        ? new Locale(lang.substring(0, 2), lang.substring(3)) : new Locale(lang);
-                sess.setAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE, prefer_locale);
-            }
-        }
 
         final User userL = (User) sess.getAttribute("userForQUser");
         if (userL != null) {
@@ -132,18 +110,17 @@ public class Form {
     //*****************************************************
     //**** Multilingual
     //*****************************************************
-    private static final ArrayList<String> langs = new ArrayList<>(Arrays.asList("ru_RU", "en_GB", "es_ES", "de_DE", "pt_PT", "fr_FR", "it_IT", "cs_CZ", "pl_PL", "sk_SK", "ro_RO", "sr_SP", "uk_UA", "tr_TR", "hi_IN", "ar_EG", "iw_IL", "kk_KZ", "in_ID", "fi_FI"));
-
-    public ArrayList<String> getLangs() {
-        return langs;
+    public ArrayList<Lng> getLangs() {
+        return Multilingual.LANGS;
     }
-    private String lang;
 
-    public String getLang() {
+    private Lng lang = new Multilingual().init();
+
+    public Lng getLang() {
         return lang;
     }
 
-    public void setLang(String lang) {
+    public void setLang(Lng lang) {
         this.lang = lang;
     }
 
@@ -151,8 +128,8 @@ public class Form {
     public void changeLang() {
         if (lang != null) {
             final Session session = Sessions.getCurrent();
-            final Locale prefer_locale = lang.length() > 2
-                    ? new Locale(lang.substring(0, 2), lang.substring(3)) : new Locale(lang);
+            final Locale prefer_locale = lang.code.length() > 2
+                    ? new Locale(lang.code.substring(0, 2), lang.code.substring(3)) : new Locale(lang.code);
             session.setAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE, prefer_locale);
             Executions.sendRedirect(null);
             /*
@@ -183,7 +160,7 @@ public class Form {
     }
 
     @Command
-    @NotifyChange(value = {"btnsDisabled", "login", "user", "postponList", "customer"})
+    @NotifyChange(value = {"btnsDisabled", "login", "user", "postponList", "customer", "avaitColumn"})
     public void login() {
         QLog.l().logQUser().debug("Login " + user.getName());
 
@@ -251,19 +228,23 @@ public class Form {
     @NotifyChange(value = {"btnsDisabled", "login", "user", "customer"})
     public void logout() {
         QLog.l().logQUser().debug("Logout " + user.getName());
+
+        setKeyRegim(KEYS_OFF);
         final Session sess = Sessions.getCurrent();
         sess.removeAttribute("userForQUser");
         UsersInside.getInstance().getUsersInside().remove(user.getName() + user.getPassword());
+
+        user.setName("");
+        user.setPassword("");
+        customer = null;
+
         for (QSession session : QSessions.getInstance().getSessions()) {
             if (user.getUser().getId().equals(session.getUser().getId())) {
                 QSessions.getInstance().getSessions().remove(session);
                 return;
             }
         }
-        user.setName("");
-        user.setPassword("");
-        customer = null;
-        setKeyRegim(KEYS_OFF);
+        // тут уже ретурн может быть и есть
     }
 
     public LinkedList<QUser> getUsersForLogin() {
@@ -295,7 +276,7 @@ public class Form {
         btnsDisabled[1] = !(isLogin() && '1' == regim.charAt(1));
         btnsDisabled[2] = !(isLogin() && '1' == regim.charAt(2));
         btnsDisabled[3] = !(isLogin() && '1' == regim.charAt(3));
-        btnsDisabled[4] = /*todo false;/*/ !(isLogin() && '1' == regim.charAt(4));
+        btnsDisabled[4] = !(isLogin() && '1' == regim.charAt(4));
         btnsDisabled[5] = !(isLogin() && '1' == regim.charAt(5));
     }
 
@@ -343,7 +324,7 @@ public class Form {
         }
         return res;
     }
-
+    
     @Wire("#btn_invite")
     private Button btn_invite;
 
@@ -351,7 +332,7 @@ public class Form {
     private Listbox service_list;
 
     @Command
-    @NotifyChange(value = {"btnsDisabled", "customer"})
+    @NotifyChange(value = {"btnsDisabled", "customer", "avaitColumn"})
     public void invite() {
         QLog.l().logQUser().debug("Invite by " + user.getName());
         final CmdParams params = new CmdParams();
@@ -472,9 +453,13 @@ public class Form {
         changeServicePriorityDialog.setVisible(false);
     }
     private String oldSt = "";
+    
+    public String getAvaitColumn(){
+        return user.getTotalLineSizeStr();
+    }
 
     @Command
-    @NotifyChange(value = {"postponList"})
+    @NotifyChange(value = {"postponList", "avaitColumn"})
     public void refreshListServices() {
 
         if (isLogin()) {
@@ -598,14 +583,10 @@ public class Form {
     //********************************************************************************************************************************************
     //** Перенаправление
     //********************************************************************************************************************************************
-    private TreeServices treeServs = TreeServices.getInstance();
+    private final TreeServices treeServs = new TreeServices();
 
     public TreeServices getTreeServs() {
         return treeServs;
-    }
-
-    public void setTreeServs(TreeServices treeServs) {
-        this.treeServs = treeServs;
     }
 
     @Wire("#incClientDashboard #incRedirectCustomerDialog #redirectDialog")

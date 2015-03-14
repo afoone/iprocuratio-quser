@@ -10,8 +10,8 @@
                 <panelchildren>
                     <listbox  id="postpone_list" model="@load(fmodel.postponList)" selectedItem="@bind(fmodel.pickedPostponed)" width="" height="" onSelect="" vflex="true">
                         <listhead>
-                            <listheader label="${c:l('number')}" width="70px" sort="auto"/>
-                            <listheader label="${c:l('period_min')}" width="100px" sort="auto"/>
+                            <listheader label="${c:l('number')}" width="70px" sort="auto" align="center"/>
+                            <listheader label="${c:l('period_min')}" width="100px" sort="auto" align="center"/>
                             <listheader label="${c:l('status')}" sort="auto"/>
                         </listhead>
                         <template name="model" var="pCust">
@@ -59,8 +59,8 @@
                 <panelchildren>
                     <listbox id="service_list" model="@load(fmodel.user.plan)" selectedItem="@bind(fmodel.pickedService)" width="100%" height="100%" onSelect="" vflex="true">
                         <listhead>
-                            <listheader label="${c:l('vaiting')}" sort="auto" width="90px"/>
-                            <listheader label="${c:l('priority')}" sort="auto" width="120px"/>
+                            <listheader label="@load(fmodel.avaitColumn)" sort="auto" width="100px" align="center"/>
+                            <listheader label="${c:l('priority')}" sort="auto" width="120px" align="center"/>
                             <listheader label="${c:l('service_name')}" sort="auto"/>
                         </listhead>
                         <template name="model" var="planService">
