@@ -56,7 +56,7 @@ import ru.apertum.qsystem.server.model.results.QResult;
 import ru.apertum.qsystem.server.model.results.QResultList;
 
 /**
- *
+ * @author Alfonso Tienda
  * @author Evgeniy Egorov
  */
 public class Form {
@@ -98,7 +98,7 @@ public class Form {
     }
 
     /**
-     * Это нужно чтоб делать include во view и потом связывать @Wire("#incClientDashboard #incChangePriorityDialog #changePriorityDlg")
+     *It is necessary to make include in the view, and then bind @Wire("#incClientDashboard #incChangePriorityDialog #changePriorityDlg")
      *
      * @param view
      */
@@ -132,22 +132,14 @@ public class Form {
                     ? new Locale(lang.code.substring(0, 2), lang.code.substring(3)) : new Locale(lang.code);
             session.setAttribute(org.zkoss.web.Attributes.PREFERRED_LOCALE, prefer_locale);
             Executions.sendRedirect(null);
-            /*
-             try {
-             Clients.reloadMessages(prefer_locale);
-             } catch (IOException ex) {
-             System.err.println("Locales bad-bad! " + ex);
-             }
-             Locales.setThreadLocal(prefer_locale);
-             */
         }
     }
 
     //*****************************************************
-    //**** Логин
+    //**** Login
     //*****************************************************
     /**
-     * Залогиневшейся юзер
+     * User Login
      */
     private User user = new User();
 
@@ -244,7 +236,7 @@ public class Form {
                 return;
             }
         }
-        // тут уже ретурн может быть и есть
+        // there is already return maybe there is
     }
 
     public LinkedList<QUser> getUsersForLogin() {
@@ -258,15 +250,15 @@ public class Form {
     }
 
     //*********************************************************************************************************
-    //**** Кнопки и их события
+    //**** Buttons and events
     //*********************************************************************************************************
     /**
-     * текущее состояние кнопок
+     * the current state of buttons
      */
     private String keys_current = KEYS_OFF;
 
     /**
-     * Механизм включения/отключения кнопок
+     * The mechanism of the on / off button
      *
      * @param regim
      */
@@ -331,11 +323,16 @@ public class Form {
     @Wire("#incClientDashboard #service_list")
     private Listbox service_list;
 
+    /**
+     * Invita al siguiente cliente
+     */
     @Command
     @NotifyChange(value = {"btnsDisabled", "customer", "avaitColumn"})
     public void invite() {
         QLog.l().logQUser().debug("Invite by " + user.getName());
         final CmdParams params = new CmdParams();
+        QLog.l().logQUser().debug("Invite by " + user.getName());
+        
         params.userId = user.getUser().getId();
         final RpcInviteCustomer result = (RpcInviteCustomer) Executer.getInstance().getTasks().get(Uses.TASK_INVITE_NEXT_CUSTOMER).process(params, "", new byte[4]);
         if (result.getResult() != null) {
@@ -365,11 +362,16 @@ public class Form {
         service_list.setModel(service_list.getModel());
     }
 
+    /**
+     * Comenzar el servicio con el cliente
+     */
     @Command
     @NotifyChange(value = {"btnsDisabled"})
     public void begin() {
         QLog.l().logQUser().debug("Begin by " + user.getName() + " customer " + customer.getFullNumber());
         final CmdParams params = new CmdParams();
+        QLog.l().logQUser().debug("Parametros para empezar con el cliente "+ customer.getFullNumber() + " : "+params +" ( tarea a iniciar: "+ Uses.TASK_START_CUSTOMER);
+
         params.userId = user.getUser().getId();
         Executer.getInstance().getTasks().get(Uses.TASK_START_CUSTOMER).process(params, "", new byte[4]);
 
@@ -484,7 +486,7 @@ public class Form {
     }
 
     //********************************************************************************************************************************************
-    //** Отложенные Отложить посетителя
+    //** Defer Deferred visitor
     //********************************************************************************************************************************************
     @Wire("#incClientDashboard #incPostponeCustomerDialog #postponeDialog")
     Window postponeCustomerDialog;

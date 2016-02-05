@@ -44,7 +44,7 @@
                         </combobox>
                         
                     </hbox>
-                    <!-- Это форма для логирования, форма для показа залогированного пользователя -->
+                    <!-- It is a form to login form to display a blocked user -->
                     <include src="/include/loginForm.zul"/>
                 </hbox>
             </vbox>
@@ -91,14 +91,13 @@
         
         <south   size="40px" style="background-image:url(${c:encodeURL('/resources/img/small_vert_grad2.png')}) " border="0">
             <toolbar mold="panel" align="center">
-                <toolbarbutton label="${c:l('forum')}" href="http://qsystem.info/index.php/forum/index" target="_blank" />
                 <toolbarbutton label="${c:l('man')}" onClick='alert("Not ready")'/>
                 <toolbarbutton label="${c:l('about')}" onClick="@command('about')"/>
-                <toolbarbutton label="{Apertum}Projects" href="http://apertum.ru" target="_blank" />
-                <toolbarbutton label="QSystem" href="http://qsystem.info" target="_blank" />
-                <toolbarbutton label="${c:l('support')}"  href="mailto:info@apertum.ru" target="_blank" />
+                <toolbarbutton label="iProcuratio Consultores" href="http://iprocuratio.com" target="_blank" />
+                <toolbarbutton label="QSystem" href="http://iprocuratio.com" target="_blank" />
+                <toolbarbutton label="${c:l('support')}"  href="mailto:qsystem@iprocuratio.com" target="_blank" />
                 <separator orient="vertical" bar="true" />
-                {Apertum}Projects Powered by ZK ${desktop.webApp.version} 
+                {Apertum}Projects - iProcuratio Consultores Powered by ZK ${desktop.webApp.version} 
             </toolbar>
         </south>
         
